@@ -9,7 +9,7 @@ type Lexer struct {
 	readPosition int
 }
 
-func newLexer(input string) *Lexer {
+func New(input string) *Lexer {
 	l := &Lexer{input: input}
 	l.readByte()
 	return l
@@ -25,7 +25,7 @@ func (l *Lexer) readByte() {
 	l.readPosition++
 }
 
-func (l *Lexer) nextToken() token.Token {
+func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
 	l.skipWhiteSpaces()
