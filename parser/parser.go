@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/ahmadjavaidwork/mpack/ast"
 	"github.com/ahmadjavaidwork/mpack/lexer"
@@ -77,18 +78,75 @@ func (p *Parser) parseString() *ast.StringLiteral {
 	return lit
 }
 
-func (p *Parser) parseNumber() *ast.Number {
-	lit := &ast.Number{Token: p.curToken}
+func (p *Parser) parseNumber() *ast.IntegerLiteral {
+	lit := &ast.IntegerLiteral{Token: p.curToken}
 
-	val, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
-	if err != nil {
-		msg := fmt.Sprintf("could not parse '%s' to number", p.curToken.Literal)
-		p.errors = append(p.errors, msg)
+	num := p.curToken.Literal
+	if strings.Contains(num, "-") {
+		lit.Value, lit.Type = p.parseSignedInt(num)
+	} else {
+		lit.Value, lit.Type = p.parseUnsignedInt(num)
+	}
+
+	if lit.Value == 0 {
 		return nil
 	}
 
-	lit.Value = val
 	return lit
+}
+
+func (p *Parser) parseSignedInt(num string) (uint64, string) {
+	val, err := strconv.ParseInt(num, 0, 8)
+	if err == nil {
+		return uint64(val), "int8"
+	}
+
+	val, err = strconv.ParseInt(num, 0, 16)
+	if err == nil {
+		return uint64(val), "int16"
+	}
+
+	val, err = strconv.ParseInt(num, 0, 32)
+	if err == nil {
+		return uint64(val), "int32"
+	}
+
+	val, err = strconv.ParseInt(num, 0, 64)
+	if err == nil {
+		return uint64(val), "int64"
+	}
+
+	msg := fmt.Sprintf("could not parse %s as int64", num)
+	p.errors = append(p.errors, msg)
+
+	return 0, ""
+}
+
+func (p *Parser) parseUnsignedInt(num string) (uint64, string) {
+	val, err := strconv.ParseUint(num, 0, 8)
+	if err == nil {
+		return val, "uint8"
+	}
+
+	val, err = strconv.ParseUint(num, 0, 16)
+	if err == nil {
+		return val, "uint16"
+	}
+
+	val, err = strconv.ParseUint(num, 0, 32)
+	if err == nil {
+		return val, "uint32"
+	}
+
+	val, err = strconv.ParseUint(num, 0, 8)
+	if err == nil {
+		return val, "uint64"
+	}
+
+	msg := fmt.Sprintf("could not parse %s as uint64", num)
+	p.errors = append(p.errors, msg)
+
+	return 0, ""
 }
 
 func (p *Parser) parseArray() *ast.Array {

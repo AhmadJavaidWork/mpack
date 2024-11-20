@@ -53,7 +53,7 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Literal = l.readUntil(',')
 			tok.Type = token.LookupIdentifier(tok.Literal)
 			return tok
-		} else if isDigit(l.current) {
+		} else if isDigit(l.current) || l.current == '-' {
 			tok = token.Token{Type: token.NUMBER, Literal: l.readUntil(',')}
 			return tok
 		} else {

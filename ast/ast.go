@@ -53,13 +53,14 @@ type StringLiteral struct {
 func (s *StringLiteral) TokenLiteral() string { return s.Token.Literal }
 func (s *StringLiteral) String() string       { return s.Value }
 
-type Number struct {
+type IntegerLiteral struct {
 	Token token.Token
-	Value int64
+	Value uint64
+	Type  string
 }
 
-func (n *Number) TokenLiteral() string { return n.Token.Literal }
-func (n *Number) String() string       { return n.Token.Literal }
+func (n *IntegerLiteral) TokenLiteral() string { return n.Token.Literal }
+func (n *IntegerLiteral) String() string       { return n.Token.Literal }
 
 type Array struct {
 	Token  token.Token
