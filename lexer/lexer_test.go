@@ -10,6 +10,7 @@ func TestLexer(t *testing.T) {
 	input := `{
 					"userName": "Martin",
 					"favoriteNumber": 1337,
+					"isProgrammer": true,
 					"interests": [
 						"daydreaming",
 						"hacking"
@@ -52,6 +53,22 @@ func TestLexer(t *testing.T) {
 		{
 			expectedType:    token.NUMBER,
 			expectedLiteral: "1337",
+		},
+		{
+			expectedType:    token.COMMA,
+			expectedLiteral: ",",
+		},
+		{
+			expectedType:    token.STRING,
+			expectedLiteral: "isProgrammer",
+		},
+		{
+			expectedType:    token.COLON,
+			expectedLiteral: ":",
+		},
+		{
+			expectedType:    token.TRUE,
+			expectedLiteral: "true",
 		},
 		{
 			expectedType:    token.COMMA,

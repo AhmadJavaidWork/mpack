@@ -49,7 +49,11 @@ func (l *Lexer) NextToken() token.Token {
 	case ']':
 		tok = token.Token{Type: token.RBRACKET, Literal: "]"}
 	default:
-		if isDigit(l.current) {
+		if isLetter(l.current) {
+			tok.Literal = l.readUntil(',')
+			tok.Type = token.LookupIdentifier(tok.Literal)
+			return tok
+		} else if isDigit(l.current) {
 			tok = token.Token{Type: token.NUMBER, Literal: l.readUntil(',')}
 			return tok
 		} else {
@@ -78,4 +82,8 @@ func (l *Lexer) readUntil(end byte) string {
 
 func isDigit(c byte) bool {
 	return '0' <= c && c <= '9'
+}
+
+func isLetter(c byte) bool {
+	return 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z' || c == '_'
 }
