@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 
 	"github.com/ahmadjavaidwork/mpack/token"
@@ -10,6 +11,12 @@ import (
 type Node interface {
 	TokenLiteral() string
 	String() string
+}
+
+type Entry struct {
+	Token token.Token
+	Key   string
+	Value Node
 }
 
 type Object struct {
@@ -46,12 +53,6 @@ type StringLiteral struct {
 func (s *StringLiteral) TokenLiteral() string { return s.Token.Literal }
 func (s *StringLiteral) String() string       { return s.Value }
 
-type Entry struct {
-	Token token.Token
-	Key   string
-	Value Node
-}
-
 type Number struct {
 	Token token.Token
 	Value int64
@@ -80,3 +81,11 @@ func (a *Array) String() string {
 
 	return out.String()
 }
+
+type Boolean struct {
+	Token token.Token
+	Value bool
+}
+
+func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
+func (b *Boolean) String() string       { return fmt.Sprintf("%t", b.Value) }

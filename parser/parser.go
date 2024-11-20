@@ -12,7 +12,6 @@ import (
 type Parser struct {
 	curToken  token.Token
 	peekToken token.Token
-	encoding  []string
 	l         *lexer.Lexer
 	errors    []string
 }
@@ -117,6 +116,14 @@ func (p *Parser) parseArray() *ast.Array {
 	return arr
 }
 
+func (p *Parser) parseBoolean() *ast.Boolean {
+	return &ast.Boolean{Token: p.curToken, Value: isTrue(p.curToken.Type)}
+}
+
+func isTrue(t token.TokenType) bool {
+	return t == token.TRUE
+}
+
 func (p *Parser) parseNode() ast.Node {
 	switch p.curToken.Type {
 	case token.STRING:
@@ -124,6 +131,9 @@ func (p *Parser) parseNode() ast.Node {
 
 	case token.NUMBER:
 		return p.parseNumber()
+
+	case token.TRUE, token.FALSE:
+		return p.parseBoolean()
 
 	case token.LBRACKET:
 		return p.parseArray()
