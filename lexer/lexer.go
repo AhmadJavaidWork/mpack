@@ -1,6 +1,8 @@
 package lexer
 
-import "github.com/ahmadjavaidwork/mpack/token"
+import (
+	"github.com/ahmadjavaidwork/mpack/token"
+)
 
 type Lexer struct {
 	input        string
@@ -34,8 +36,11 @@ func (l *Lexer) NextToken() token.Token {
 	case 0:
 		tok = token.Token{Type: token.EOF, Literal: token.EOF}
 	case '"':
+		termintors := map[byte]bool{
+			'"': true,
+		}
 		l.readByte()
-		tok = token.Token{Type: token.STRING, Literal: l.readUntil('"')}
+		tok = token.Token{Type: token.STRING, Literal: l.readUntil(termintors)}
 	case ':':
 		tok = token.Token{Type: token.COLON, Literal: ":"}
 	case ',':
@@ -50,11 +55,21 @@ func (l *Lexer) NextToken() token.Token {
 		tok = token.Token{Type: token.RBRACKET, Literal: "]"}
 	default:
 		if isLetter(l.current) {
-			tok.Literal = l.readUntil(',')
+			termintors := map[byte]bool{
+				',':  true,
+				'}':  true,
+				'\n': true,
+			}
+			tok.Literal = l.readUntil(termintors)
 			tok.Type = token.LookupIdentifier(tok.Literal)
 			return tok
 		} else if isDigit(l.current) || l.current == '-' {
-			tok = token.Token{Type: token.NUMBER, Literal: l.readUntil(',')}
+			termintors := map[byte]bool{
+				',':  true,
+				'}':  true,
+				'\n': true,
+			}
+			tok = token.Token{Type: token.NUMBER, Literal: l.readUntil(termintors)}
 			return tok
 		} else {
 			tok = token.Token{Type: token.ILLEGAL, Literal: string(l.current)}
@@ -72,9 +87,9 @@ func (l *Lexer) skipWhiteSpaces() {
 	}
 }
 
-func (l *Lexer) readUntil(end byte) string {
+func (l *Lexer) readUntil(termintors map[byte]bool) string {
 	pos := l.position
-	for l.current != end {
+	for _, ok := termintors[l.current]; !ok; _, ok = termintors[l.current] {
 		l.readByte()
 	}
 	return l.input[pos:l.position]
