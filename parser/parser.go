@@ -70,7 +70,31 @@ func (p *Parser) parseEntry() *ast.Entry {
 	return entry
 }
 
-func (p *Parser) parseString() *ast.StringLiteral {
+func (p *Parser) parseNode() ast.Node {
+	switch p.curToken.Type {
+	case token.STRING:
+		return p.parseStringLiteral()
+
+	case token.NUMBER:
+		return p.parseIntegerLiteral()
+
+	case token.TRUE, token.FALSE:
+		return p.parseBoolean()
+
+	case token.LBRACKET:
+		return p.parseArray()
+
+	case token.LBRACE:
+		return p.Parse()
+
+	default:
+		msg := fmt.Sprintf("illegal token: %s", p.curToken.Literal)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+}
+
+func (p *Parser) parseStringLiteral() *ast.StringLiteral {
 	lit := &ast.StringLiteral{
 		Token: p.curToken,
 		Value: p.curToken.Literal,
@@ -78,7 +102,7 @@ func (p *Parser) parseString() *ast.StringLiteral {
 	return lit
 }
 
-func (p *Parser) parseNumber() *ast.IntegerLiteral {
+func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
 	lit := &ast.IntegerLiteral{Token: p.curToken}
 
 	num := p.curToken.Literal
@@ -180,28 +204,6 @@ func (p *Parser) parseBoolean() *ast.Boolean {
 
 func isTrue(t token.TokenType) bool {
 	return t == token.TRUE
-}
-
-func (p *Parser) parseNode() ast.Node {
-	switch p.curToken.Type {
-	case token.STRING:
-		return p.parseString()
-
-	case token.NUMBER:
-		return p.parseNumber()
-
-	case token.TRUE, token.FALSE:
-		return p.parseBoolean()
-
-	case token.LBRACKET:
-		return p.parseArray()
-
-	case token.LBRACE:
-		return p.Parse()
-
-	default:
-		return nil
-	}
 }
 
 func (p *Parser) expectPeek(tokenType token.TokenType) bool {
